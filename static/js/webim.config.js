@@ -19,7 +19,7 @@ WebIM.config = {
     /*
      * Application AppKey
      */
-    appkey: 'hbrt#doctor',
+    appkey: 'helloztt#test',
 
     /*
      * Whether to use wss
