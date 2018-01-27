@@ -11,6 +11,7 @@
   export default {
     name: 'app',
     created() {
+      this.$addFriends('demo','备注信息')
       this.init()
     },
     methods: {
@@ -155,8 +156,12 @@
           //     msgData.style = 'self'
           //     msgData.username = msg.to
           // }
-
-          this.$$vm.friends[msg.from]['noread'] = ~~this.$$vm.friends[msg.from]['noread'] + 1 //设置未读消息数
+          console.log('---------')
+          console.log(this.$$vm.friends)
+          let index =  this.$$vm.friends.findIndex((item) => {
+            return item.name === msg.from
+          })
+          this.$$vm.friends[index]['noread'] = ~~this.$$vm.friends[index]['noread'] + 1 //设置未读消息数
 
           if (!this.$$vm.chatMsg.hasOwnProperty(msg.from)) this.$$vm.chatMsg[msg.from] = []
 

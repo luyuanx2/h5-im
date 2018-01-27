@@ -157,14 +157,17 @@ export default {
                 if (message.type === 'subscribe') {
                     //若e.status中含有[resp:true],则表示为对方同意好友后反向添加自己为好友的消息，demo中发现此类消息，默认同意操作，完成双方互为好友；如果不含有[resp:true]，则表示为正常的对方请求添加自己为好友的申请消息。
                     /*同意添加好友操作的实现方法*/
-                    im.subscribed({
-                        to: vm.user.name,
-                        message: '[resp:true]'
-                    });
-                    im.subscribe({//需要反向添加对方好友
-                        to: message.from,
-                        message: '[resp:true]'
-                    });
+                    // im.subscribed({
+                    //     to: vm.user.name,
+                    //     message: '[resp:true]'
+                    // });
+                    // im.subscribe({//需要反向添加对方好友
+                    //     to: message.from,
+                    //     message: '[resp:true]'
+                    // });
+
+                    //同意添加对方为好友
+                    //拒绝对方添加好友
                 }
 
                 //(发送者允许接收者接收他们的出席信息)，即别人同意你加他为好友
@@ -304,7 +307,34 @@ export default {
             }
         });
 
-        /**
+      /**
+       * 添加好友
+       */
+      function addFriends(to,remark) {
+        im.subscribe({
+          to: to,
+          message: remark // Demo里面接收方没有展现出来这个message，在status字段里面
+        });
+      }
+
+      /**
+       * 删除好友
+       */
+      function removeFriend(to) {
+        im.removeRoster({
+          to: to,
+          success: function () {
+            //通知对方已经被删除
+            // im.unsubscribed({
+            //   to: to
+            // });
+          },
+          error: function () {
+            console.log("删除好友失败")
+          }
+        });
+      }
+      /**
          * 环信发送消息
          * @param msg
          * @param ext
@@ -407,6 +437,7 @@ export default {
         Vue.prototype.$$vm = vm;
         Vue.prototype.$$im = im;
         Vue.prototype.$sendTxtMessage = sendTxtMessage;
+        Vue.prototype.$addFriends = addFriends;
         Vue.prototype.$sendCustomMessage = sendCustomMessage;
         Vue.prototype.$getStorageChat = getStorageChat;
         Vue.prototype.$setStorageChat = setStorageChat;
