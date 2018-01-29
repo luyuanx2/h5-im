@@ -18,6 +18,7 @@ export default {
                 },
                 applys: [],
                 friends: [],
+                stranger: [],
                 doctors: {},
                 chatMsg: {},
                 errorType: -1
@@ -67,16 +68,26 @@ export default {
                         //         subscription: 'both'
                         //     }
                         // ]
+                      let strangers = JSON.parse(window.localStorage.getItem('strangers') || '[]')
                         for (var i = 0, l = roster.length; i < l; i++) {
                             var ros = roster[i];
                             //ros.subscription值为both/to为要显示的联系人，此处与APP需保持一致，才能保证两个客户端登录后的好友列表一致
-                            // if (ros.subscription === 'both' || ros.subscription === 'to') {
+                            if (ros.subscription === 'both' || ros.subscription === 'to') {
+                              strangers.forEach((s) => {
+                                if(s.name !== ros.name){
+                                  vm.friends.push(s)
+                                }else {
+                                  const index = strangers.indexOf(s)
+                                  strangers.splice(index,1)
+                                }
+                              })
                                 ros.noread = 0
+                                ros.isFriends = 1
                                 vm.friends.push(ros)
                                 //获取历史消息
                                 let userChatHistory = getStorageChat(ros.name)
                                 vm.$set(vm.chatMsg, ros.name, userChatHistory)
-                            // }
+                            }
                         }
                     },
                 })

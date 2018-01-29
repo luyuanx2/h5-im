@@ -25,6 +25,11 @@
     },
     created() {
       this.friends = this.$$vm.friends
+//      this.$$vm.friends.forEach((s) => {
+//        if(s.isFriends === 1) {
+//          this.friends.push(s)
+//        }
+//      })
     }
   }
 </script>

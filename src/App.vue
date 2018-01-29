@@ -113,12 +113,38 @@
           alert(e.message)
         }
       },
+
+      insertStranger(msg) {
+        const index =this.$$vm.friends.findIndex((item) => {
+          return item.from === msg.from
+        })
+        if(index === -1) {
+          let stranger = {}
+          stranger.noread = 0
+          stranger.name = msg.from
+          stranger.isFriends = 0
+          this.$$vm.friends.push(stranger)
+          // 保存到localstorage
+          let strangers = JSON.parse(window.localStorage.getItem('strangers') || '[]')
+          const index1 = strangers.findIndex((item) => {
+            return item.name === stranger.name
+          })
+          if(index1 === -1) {
+            strangers.push(stranger)
+            window.localStorage.setItem('strangers', JSON.stringify(strangers))
+          }
+        }
+      },
       /**
        * 收到消息
        * @param msg
        * @param type
        */
       receiveMessage(msg, type) {
+        //好友列表查询是否是陌生人消息
+        this.insertStranger(msg);
+        console.log('收到消息===============')
+        console.log(this.$$vm.friends)
         if (msg.from == this.$$vm.user.hxUser || msg.to == this.$$vm.user.hxUser) {
           var value = msg.data//默认展示的消息value
 
