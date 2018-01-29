@@ -2,7 +2,7 @@
   <div>
     <div></div>
     <div>
-      <ul>
+      <ul v-if="chatListGetter.length">
         <li v-for="(item, index) in chatListGetter">
           <img style="width: 32px;height: 32px" :src="item.avatar">
           <span>{{item.time}}</span>
@@ -24,6 +24,7 @@
         <input v-model="inputMessage"/>
         <input ref="uploader" type="file" @change="sendImage"/>
         <button @click="sendMessage">发送</button>
+        <button @click="clearMsg">清除聊天记录</button>
       </div>
     </div>
   </div>
@@ -53,12 +54,11 @@
       chatListGetter() {
         return this.chatMsg.map(item => {
 
-          item.avatar = 'aaa'//this.$$vm.friends[this.hxUser]['avatar']
-
           let index =  this.$$vm.friends.findIndex((item) => {
             return item.name === this.hxUser
           })
           item.username = this.$$vm.friends[index]['name']
+          // item.avatar = this.$$vm.friends[index]['avatar']
 
           if (item.style === 'self') {
             item.avatar = this.$$vm.user.photo
@@ -68,7 +68,6 @@
           if (!item.avatar) {
             item.avatar = require('../assets/logo.png')
           }
-
           return item
         })
       }
@@ -85,11 +84,15 @@
       init() {
         this.$$vm.$emit('readed', this.hxUser)
         this.$$vm.$watch(`chatMsg.${this.hxUser}`, (val, oldVal) => {
-          console.log('[Leo]chatMsg change=>', val)
+          console.log('[Leo]chatMsg change====================>', val)
           this.$set(this, 'chatMsg', val)
           this.$$vm.$emit('readed', this.hxUser)
 //          window.localStorage.setItem(this.hxUser, JSON.stringify(this.$$vm.chatMsg[this.hxUser]))
         })
+      },
+//      清除聊天记录
+      clearMsg() {
+        this.$clearMessage(this.hxUser)
       },
       sendMessage() {
         if (!this.inputMessage.trim()) {

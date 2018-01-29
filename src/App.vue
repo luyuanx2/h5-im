@@ -11,7 +11,7 @@
   export default {
     name: 'app',
     created() {
-      this.$addFriends('demo','备注信息')
+//      this.$addFriends('demo','备注信息')
       this.init()
     },
     methods: {
@@ -34,9 +34,9 @@
         })
 
           //清空未读标记
-          this.$$vm.$on('readed', (hxUser) => {
-            this.$$vm.friends[hxUser] && (this.$$vm.friends[hxUser]['noread'] = 0)
-        })
+//          this.$$vm.$on('readed', (hxUser) => {
+//            this.$$vm.friends[hxUser] && (this.$$vm.friends[hxUser]['noread'] = 0)
+//        })
         } catch (e) {
             console.log(e)
           alert('获取授权失败')
@@ -75,19 +75,19 @@
 //          alert('出错了 ：' + e.message)
 //      })
       },
-      /**
-       * 医生列表
-       */
-      getDocList(userId) {
-        return axios.get(`${this.$$vm.host}/api/hzanddoc/gaoHzanddoc/DocList`, {params: {'user_id': userId}}).then(res => {
-            console.log('[Leo]获取医生列表 =>', res.data.data)
-        res.data.data.forEach(item => {
-          item['noread'] = 0
-          this.$set(this.$$vm.doctors, item.hxUser, item)
-      })
-        window.localStorage.setItem('docs', JSON.stringify(res.data.data))//将医生列表本地缓存，用户获取对应医生的消息历史
-      })
-      },
+//      /**
+//       * 医生列表
+//       */
+//      getDocList(userId) {
+//        return axios.get(`${this.$$vm.host}/api/hzanddoc/gaoHzanddoc/DocList`, {params: {'user_id': userId}}).then(res => {
+//            console.log('[Leo]获取医生列表 =>', res.data.data)
+//        res.data.data.forEach(item => {
+//          item['noread'] = 0
+//          this.$set(this.$$vm.doctors, item.hxUser, item)
+//      })
+//        window.localStorage.setItem('docs', JSON.stringify(res.data.data))//将医生列表本地缓存，用户获取对应医生的消息历史
+//      })
+//      },
       /**
        * 环信登录
        */
@@ -156,8 +156,6 @@
           //     msgData.style = 'self'
           //     msgData.username = msg.to
           // }
-          console.log('---------')
-          console.log(this.$$vm.friends)
           let index =  this.$$vm.friends.findIndex((item) => {
             return item.name === msg.from
           })

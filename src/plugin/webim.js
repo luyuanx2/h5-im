@@ -16,6 +16,7 @@ export default {
                     pwd: 'test',
                     photo: ''
                 },
+                applys: [],
                 friends: [],
                 doctors: {},
                 chatMsg: {},
@@ -23,14 +24,14 @@ export default {
             },
             created() {
                 //根据本地医生列表获取对应医生的本地消息历史
-                let docs = JSON.parse(window.localStorage.getItem('docs') || '[]')
-                docs.forEach(item => {
-                    this.$set(this.doctors, item.hxUser, JSON.parse(window.localStorage.getItem(item.hxUser) || '[]'))
-
-                    //获取历史消息
-                    let userChatHistory = getStorageChat(item.hxUser)
-                    this.$set(this.chatMsg, item.hxUser, userChatHistory)
-                })
+                // let docs = JSON.parse(window.localStorage.getItem('docs') || '[]')
+                // docs.forEach(item => {
+                //     this.$set(this.doctors, item.hxUser, JSON.parse(window.localStorage.getItem(item.hxUser) || '[]'))
+                //
+                //     //获取历史消息
+                //     let userChatHistory = getStorageChat(item.hxUser)
+                //     this.$set(this.chatMsg, item.hxUser, userChatHistory)
+                // })
             }
         });
 
@@ -72,6 +73,9 @@ export default {
                             // if (ros.subscription === 'both' || ros.subscription === 'to') {
                                 ros.noread = 0
                                 vm.friends.push(ros)
+                                //获取历史消息
+                                let userChatHistory = getStorageChat(ros.name)
+                                vm.$set(vm.chatMsg, ros.name, userChatHistory)
                             // }
                         }
                     },
@@ -155,6 +159,18 @@ export default {
 
                 //（发送者希望订阅接收者的出席信息），即别人申请加你为好友
                 if (message.type === 'subscribe') {
+                  console.log('===========')
+                  console.log(typeof message)
+                  if(typeof message === 'object') {
+                    let applyMsg = {
+                      from: message.from,
+                      to: message.to,
+                      type: message.type,
+                      status: message.status //demo请求添加好友
+                    }
+                    vm.applys.push(message);
+                  }
+
                     //若e.status中含有[resp:true],则表示为对方同意好友后反向添加自己为好友的消息，demo中发现此类消息，默认同意操作，完成双方互为好友；如果不含有[resp:true]，则表示为正常的对方请求添加自己为好友的申请消息。
                     /*同意添加好友操作的实现方法*/
                     // im.subscribed({
@@ -165,9 +181,6 @@ export default {
                     //     to: message.from,
                     //     message: '[resp:true]'
                     // });
-
-                    //同意添加对方为好友
-                    //拒绝对方添加好友
                 }
 
                 //(发送者允许接收者接收他们的出席信息)，即别人同意你加他为好友
@@ -308,9 +321,29 @@ export default {
         });
 
       /**
+       * 同意好友申请
+       */
+      function agreeApply(to) {
+        im.subscribed({
+          to: to,
+          message: "[resp:true]"
+        })
+      }
+
+      /**
+       * 拒绝好友申请
+       */
+      function refuseApply(to) {
+        im.unsubscribed({
+          to: to,
+          message: new Date().toLocaleString()
+        })
+      }
+
+      /**
        * 添加好友
        */
-      function addFriends(to,remark) {
+      function addFriend(to,remark) {
         im.subscribe({
           to: to,
           message: remark // Demo里面接收方没有展现出来这个message，在status字段里面
@@ -434,10 +467,23 @@ export default {
             window.localStorage.setItem(key, JSON.stringify(data))
         }
 
+      /**
+       * 清除聊天记录
+       * @param key
+       */
+        function clearMessage(key) {
+            vm.$set(vm.chatMsg, key, [])
+            window.localStorage.removeItem(key)
+        }
+
         Vue.prototype.$$vm = vm;
         Vue.prototype.$$im = im;
         Vue.prototype.$sendTxtMessage = sendTxtMessage;
-        Vue.prototype.$addFriends = addFriends;
+        Vue.prototype.$addFriend = addFriend;
+        Vue.prototype.$removeFriend = removeFriend;
+        Vue.prototype.$agreeApply = agreeApply;
+        Vue.prototype.$refuseApply = refuseApply;
+        Vue.prototype.$clearMessage = clearMessage;
         Vue.prototype.$sendCustomMessage = sendCustomMessage;
         Vue.prototype.$getStorageChat = getStorageChat;
         Vue.prototype.$setStorageChat = setStorageChat;

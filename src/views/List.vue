@@ -25,7 +25,7 @@
     },
     created() {
       this.friends = this.$$vm.friends
-    },
+    }
   }
 </script>
 
