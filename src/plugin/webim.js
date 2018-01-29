@@ -171,6 +171,17 @@ export default {
                     vm.applys.push(message);
                   }
 
+                  if(typeof message === 'Array'){
+                    message.forEach((s) => {
+                      let applyMsg = {
+                        from: s.from,
+                        to: s.to,
+                        type: s.type,
+                        status: s.status
+                      }
+                      vm.applys.push(message);
+                    })
+                  }
                     //若e.status中含有[resp:true],则表示为对方同意好友后反向添加自己为好友的消息，demo中发现此类消息，默认同意操作，完成双方互为好友；如果不含有[resp:true]，则表示为正常的对方请求添加自己为好友的申请消息。
                     /*同意添加好友操作的实现方法*/
                     // im.subscribed({

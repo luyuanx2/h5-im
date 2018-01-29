@@ -1,9 +1,9 @@
 <template>
   <div>
     <ul v-if="applys.length">
-      <li v-for="(item, index) in applys" class="item">{{item.status}}
-        <button type="button" @click="apply(item.from)">同意</button>
-        <button type="button" @click="refuse(item.from)">拒绝</button>
+      <li v-for="(item, index) in applys" ref="applyRef(index)" class="item">{{item.status}}
+        <button type="button" @click="apply(item.from,index)">同意</button>
+        <button type="button" @click="refuse(item.from,index)">拒绝</button>
       </li>
     </ul>
     <ul v-if="noreadFriends.length">
@@ -23,12 +23,25 @@
         noreadFriends: []
       }
     },
+    computed: {
+      applyRef(index) {
+        return 'apply'+index
+      }
+    },
     methods: {
-      apply(to) {
+      apply(to,index) {
         this.$agreeApply(to)
+        this.removeApply(to)
       },
-      refuse(to) {
+      refuse(to,index) {
         this.$refuseApply(to)
+        this.removeApply(to)
+      },
+      removeApply(to) {
+        const index =this.$$vm.applys.findIndex((item) => {
+          return item.from === to
+        })
+        this.$$vm.applys.splice(index,1)
       },
       toChat(item) {
         this.$router.push({
@@ -37,18 +50,7 @@
         })
       },
       init() {
-//        watch: {
-//          items: {
-//            handler: function () {},
-//            deep: true
-//          }
-//        }
         this.$$vm.$watch('friends', (val, oldVal) => {
-//          for (let i = 0; i < val.length; i++) {
-//            if (oldVal[i].noread != val[i].noread) {
-//              this.noreadFriends.push( val[i])
-//            }
-//          }
           console.log('[Message]chatMsg change====================>', val)
           val.forEach((s) => {
               if(s.noread > 0) {
@@ -66,12 +68,6 @@
     },
     created() {
       this.applys = this.$$vm.applys
-//      this.noreadFriends = this.$$vm.friends
-//      this.$$vm.friends.forEach((s) => {
-//        if(s.noread > 0) {
-//          this.noreadFriends.push(s)
-//        }
-//      })
     }
   }
 </script>
