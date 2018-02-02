@@ -7,7 +7,6 @@
 <script>
 import axios from 'axios'
 import uri from './utils/url'
-
 export default {
   name: 'app',
   created() {
@@ -26,13 +25,11 @@ export default {
         //        }).catch(e => {
         //            alert('出错了 => ' + e.message)
         //        })
-
         //收到消息
         this.$$vm.$on('receiveMsg', ({ msg, type }) => {
           console.log('[Leo]收到消息 => ', { msg, type })
           this.receiveMessage(msg, type)
         })
-
         //清空未读标记
         //          this.$$vm.$on('readed', (hxUser) => {
         //            this.$$vm.friends[hxUser] && (this.$$vm.friends[hxUser]['noread'] = 0)
@@ -42,7 +39,6 @@ export default {
         alert('获取授权失败')
       }
     },
-
     /**
      * 获取登录用户的信息
      * @returns {Promise.<void>}
@@ -59,7 +55,6 @@ export default {
       this.$$vm.user.name = userInfo.name
       this.$$vm.user.hxUser = userInfo.hxUser
       this.$$vm.user.photo = userInfo.photo
-
       return userInfo
       //        return axios.get(`${this.$$vm.host}/api/gaouser/gaoUser/userdetail`, {params: {'user_id': userId}}).then(userInfo => {
       //            console.log('[Leo]用户信息 => ', userInfo)
@@ -113,26 +108,48 @@ export default {
         alert(e.message)
       }
     },
+    insertStranger(msg) {
+      const index = this.$$vm.friends.findIndex(item => {
+        return item.from === msg.from
+      })
+      if (index === -1) {
+        let stranger = {}
+        stranger.noread = 0
+        stranger.name = msg.from
+        stranger.isFriends = 0
+        this.$$vm.friends.push(stranger)
+        // 保存到localstorage
+        let strangers = JSON.parse(window.localStorage.getItem('strangers') || '[]')
+        const index1 = strangers.findIndex(item => {
+          return item.name === stranger.name
+        })
+        if (index1 === -1) {
+          strangers.push(stranger)
+          window.localStorage.setItem('strangers', JSON.stringify(strangers))
+        }
+      }
+    },
     /**
      * 收到消息
      * @param msg
      * @param type
      */
     receiveMessage(msg, type) {
+      //好友列表查询是否是陌生人消息
+      this.insertStranger(msg)
+      console.log('收到消息===============')
+      console.log(this.$$vm.friends)
       if (msg.from == this.$$vm.user.hxUser || msg.to == this.$$vm.user.hxUser) {
         var value = msg.data //默认展示的消息value
-
         if (type == 'txt') {
           //txt消息需要转Emoji图标
           value = WebIM.parseEmoji(msg.data.replace(/\n/gm, ''))
         }
-
         if (msg.ext['extension']) {
           //如果消息带有扩展，则消息类型从扩展中取
           type = msg.ext['extension']
           value = extensionTitle[type]
         }
-
         let time = WebIM.time()
         let msgData = {
           info: {
@@ -162,17 +179,11 @@ export default {
           return item.name === msg.from
         })
         this.$$vm.friends[index]['noread'] = ~~this.$$vm.friends[index]['noread'] + 1 //设置未读消息数
-
         if (!this.$$vm.chatMsg.hasOwnProperty(msg.from)) this.$$vm.chatMsg[msg.from] = []
-
         this.$$vm.chatMsg[msg.from].push(msgData)
-
         this.$setStorageChat(msg.from, this.$$vm.chatMsg[msg.from]) //将收到的消息保存到历史消息缓存
       }
     }
   }
 }
 </script>
-<style>
-@import './style/index.css';
-</style>
